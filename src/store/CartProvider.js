@@ -13,9 +13,9 @@ const CartProvider = (props) => {
   };
 
   return (
-    <CartContext.provider value={cartContext}>
+    <CartContext.Provider value={cartContext}>
       {props.children}
-    </CartContext.provider>
+    </CartContext.Provider>
   );
 };
 export default CartProvider;
