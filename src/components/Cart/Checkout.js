@@ -27,7 +27,7 @@ const Checkout = (props) => {
 
     const enteredNameIsValid = !isEmpty(enteredName);
     const enteredStreetIsValid = !isEmpty(enteredStreet);
-    const enteredPostalIsValid = !isFiveChars(enteredPostal);
+    const enteredPostalIsValid = isFiveChars(enteredPostal);
     const enteredCityIsValid = !isEmpty(enteredCity);
 
     setFormInputsValidity({
@@ -44,7 +44,14 @@ const Checkout = (props) => {
       enteredCityIsValid;
 
     if (!formIsValid) {
+      return;
     }
+    props.onConfirm({
+      name: enteredName,
+      street: enteredStreet,
+      postal: enteredPostal,
+      city: enteredCity,
+    });
   };
 
   return (
