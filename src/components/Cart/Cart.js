@@ -1,12 +1,15 @@
 import classes from "./Cart.module.css";
 import Modal from "../UI/Modal";
-import { useContext, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import CartContext from "../../store/cart-context";
 import CartItem from "./CartItem";
 import Checkout from "./Checkout";
 
 const Cart = (props) => {
   const [isCheckout, setIsCheckout] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [didSubmit, setDidSubmit] = useState(false);
+
   const cartCtx = useContext(CartContext);
 
   const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
@@ -24,8 +27,9 @@ const Cart = (props) => {
     setIsCheckout(true);
   };
 
-  const submitOrderHandler = (userData) => {
-    fetch(
+  const submitOrderHandler = async (userData) => {
+    setIsSubmitting(true);
+    await fetch(
       "https://react-post-a0184-default-rtdb.europe-west1.firebasedatabase.app/orders.json",
       {
         method: "POST",
@@ -38,6 +42,9 @@ const Cart = (props) => {
         },
       }
     );
+    setIsSubmitting(false);
+    setDidSubmit(true);
+    cartCtx.clearCart()
   };
   const cartItems = (
     <ul className={classes["cart-items"]}>
@@ -67,8 +74,8 @@ const Cart = (props) => {
     </div>
   );
 
-  return (
-    <Modal onHideCart={props.onHideCart}>
+  const cartModalContent = (
+    <Fragment>
       {cartItems}
       <div className={classes.total}>
         <span>Total amount</span>
@@ -78,8 +85,18 @@ const Cart = (props) => {
         <Checkout onConfirm={submitOrderHandler} onCancel={props.onHideCart} />
       )}
       {!isCheckout && modalActions}
-    </Modal>
+    </Fragment>
   );
+
+  const isSubmittingModalContent = <Fragment><p>Sending order data ...</p></Fragment>
+
+  const didSubmitModalContent = <Fragment><p>Successfully send the order!</p></Fragment>
+
+  return <Modal onHideCart={props.onHideCart}>
+    {!isSubmitting && !didSubmit && cartModalContent}
+    {isSubmitting && isSubmittingModalContent}
+    {!isSubmitting && didSubmit && didSubmitModalContent}
+    </Modal>;
 };
 
 export default Cart;
